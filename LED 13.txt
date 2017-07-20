@@ -1,0 +1,35 @@
+/**
+  ******************************************************************************
+  * @file    main.c
+  * @author  Ac6
+  * @version V1.0
+  * @date    01-December-2013
+  * @brief   Default main function.
+  ******************************************************************************
+*/
+
+#include "stm32f30x.h"
+
+int x = 0;
+int main(void)
+{
+	int y =0;
+	GPIO_InitTypeDef g;
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOB,ENABLE);
+	g.GPIO_Pin = GPIO_Pin_3;
+	g.GPIO_Mode = GPIO_Mode_OUT;
+	g.GPIO_OType = GPIO_OType_PP;
+	g.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	g.GPIO_Speed = GPIO_Speed_10MHz;
+	GPIO_Init(GPIOB, &g);
+
+	while (1){
+		GPIO_SetBits(GPIOB, GPIO_Pin_3);
+		x=1;
+		y=1;
+		GPIO_ResetBits(GPIOB, GPIO_Pin_3);
+		x=0;
+		y=0;
+	}
+
+}
