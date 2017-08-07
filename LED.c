@@ -1,10 +1,11 @@
 /**
   ******************************************************************************
   * @file    LED.c
-  * @author  Ac6
+  * @author  Lucas Schulze
+  * @GitHub  /Schulze18/NUCLEO-F303K8
   * @version V1.0
   * @date    20-July-2017
-  * @brief   Configure and Blink LED
+  * @brief   Configure and Blink LED in STM32 Nucleo F303K8 with System Workbench for STM32
   ******************************************************************************
 */
 
@@ -19,9 +20,12 @@ void LED_setup(void);
 
 int main(void)
 {
+	//Enable Clock from LED's Port
+	RCC_AHBPeriphClockCmd( RCC_AHBPeriph_GPIOB, ENABLE);
+
 	//Call function to configure LED's Pin
 	LED_setup();
-	
+
 	//Main Loop
 	while (1){
 		//Turn On LED
@@ -34,7 +38,7 @@ int main(void)
 
 //Function to configure LED's Pin
 void LED_setup(void){
-	//
+	//Create GPIO Init Structure for  LED
 	GPIO_InitTypeDef led;
 
 	led.GPIO_Pin = PIN_LED;
@@ -42,8 +46,8 @@ void LED_setup(void){
 	led.GPIO_OType = GPIO_OType_PP;
 	led.GPIO_PuPd = GPIO_PuPd_NOPULL;
 	led.GPIO_Speed = GPIO_Speed_50MHz;
-	
-	//Initialize t
+
+	//Initialize LED's structure
 	GPIO_Init(PORT_LED, &led);
 
 }
