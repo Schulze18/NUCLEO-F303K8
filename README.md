@@ -1,4 +1,4 @@
-Tutorials and files to STM32 Nucleo F303k8 that I'm working on. The IDE used is the System Workbench for STM32.
+Tutorials and files to STM32 Nucleo F303k8 that I'm working on. The IDE that I'm using is the System Workbench for STM32.
 
 It is recommended to read the following documents:
 
