@@ -9,4 +9,5 @@ Installing
 StdPeriph Driver Library
 - Download the library 
 http://www.st.com/content/st_com/en/products/embedded-software/mcus-embedded-software/stm32-embedded-software/stm32-standard-peripheral-libraries/stsw-stm32108.html
+- I recommend to read all the files from the link above, especially the UM1581
 - When creating a new project, don't click "Finish" until the window "Project Firmware configuration", so select to use "Standard Peripherical Library (StdPeriph)".
