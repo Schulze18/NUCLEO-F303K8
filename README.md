@@ -3,7 +3,7 @@ Tutorials and files to STM32 Nucleo F303k8 that I'm working on. The IDE that I'm
 It is recommended to read the following documents:
 
 Microcontroller's Datasheet:
-www.st.com/resource/en/datasheet/stm32f103tb.pdf
+www.st.com/resource/en/datasheet/stm32f303k8.pdf
 
 User Manual of STM32 Nucleo Board:
 www.st.com/resource/en/user_manual/dm00231744.pdf
