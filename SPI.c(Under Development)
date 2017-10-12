@@ -1,0 +1,14 @@
+/**
+  ******************************************************************************
+  * @file    SPI.c
+  * @author  Lucas Schulze
+  * @GitHub  /Schulze18/NUCLEO-F303K8
+  * @version V1.0
+  * @date    12-October-2017
+  * @brief   Configure and use SPI communication in STM32 Nucleo F303K8 with System Workbench for STM32
+  ******************************************************************************
+*/
+
+
+
+#include "stm32f30x.h"
