@@ -5,10 +5,123 @@
   * @GitHub  /Schulze18/NUCLEO-F303K8
   * @version V1.0
   * @date    12-October-2017
-  * @brief   Configure and use external interruptions in STM32 Nucleo F303K8 with System Workbench for STM32
+  * @brief   Configure and use external interruptions in STM32 Nucleo F303K8 with System Workbench for STM32.
+  *          Here we use a button on pin 0 of port B to cause a interruption.
   ******************************************************************************
 */
 
-
-
 #include "stm32f30x.h"
+
+//Port and Pin of LED
+#define PIN_LED		GPIO_Pin_3
+#define PORT_LED	GPIOB
+//Port and Pin of Button
+#define PIN_BUTTON	GPIO_Pin_0
+#define	PORT_BUTTON	GPIOB
+
+//Function prototype
+void LED_setup(void);
+void BUTTON_setup(void);
+void EXTI0_setup(void);
+
+//Variable creation
+int x=0;
+
+int main(void)
+{
+	//Enable Clock from LED's and Button's Port
+	RCC_AHBPeriphClockCmd( RCC_AHBPeriph_GPIOB, ENABLE);
+
+	//Call function to configure LED's Pin
+	LED_setup();
+	BUTTON_setup();
+ EXTI0_setup();
+
+	//Main Loop
+	while (1){
+		//Turn On LED if the Button is pressed
+		if(x==1)GPIO_SetBits(PORT_LED, PIN_LED);
+		//Turn Off LED if the Button is released
+		else GPIO_ResetBits(PORT_LED, PIN_LED);
+	}
+}
+
+//Function to configure LED's Pin
+void LED_setup(void){
+	//Create GPIO Init Structure for  LED
+	GPIO_InitTypeDef led;
+
+	led.GPIO_Pin = PIN_LED;
+	led.GPIO_Mode = GPIO_Mode_OUT;
+	led.GPIO_OType = GPIO_OType_PP;
+	led.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	led.GPIO_Speed = GPIO_Speed_50MHz;
+
+	//Initialize LED's structure
+	GPIO_Init(PORT_LED, &led);
+
+}
+
+//Function to configure Button's Pin
+void BUTTON_setup(void){
+	//Create GPIO Init Structure for Button
+	GPIO_InitTypeDef button;
+
+	button.GPIO_Pin = PIN_BUTTON;
+	button.GPIO_Mode = GPIO_Mode_IN;
+	button.GPIO_OType = GPIO_OType_PP;
+	button.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	button.GPIO_Speed = GPIO_Speed_50MHz;
+
+	//Initialize Button's structure
+	GPIO_Init(PORT_BUTTON, &button);
+
+}
+
+//Function to configure External Interruption on PB0
+void EXTI0_setup(void){
+ //Create structure for External Interruption
+ EXTI_InitTypeDef EXTI_PB0;
+ //Create structure to configure Nested Vector Interruption Controller of EXTI0 
+ NVIC_InitTypeDef NVIC_EXTI0;
+ 
+ //Enable Clock of APB2 to use EXTI and associate PB0 to EXTI0
+ RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+	//Connect EXTI Line0 to PB0 pin
+	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource0);
+	//Parameters of External Interruption
+	EXTI_PB0.EXTI_Line = EXTI_Line0;              //Line of the button
+	EXTI_PB0.EXTI_Mode = EXTI_Mode_Interrupt;   
+	EXTI_PB0.EXTI_Trigger = EXTI_Trigger_Rising;  //Interruption will happen only in rising
+	EXTI_PB0.EXTI_LineCmd = ENABLE;
+ 
+ //Initialize External Interruption's structure
+	EXTI_Init(&EXTI_PB0);
+
+	//Enable EXTI0 and configure interruption's priority
+	NVIC_EXTI0.NVIC_IRQChannel = EXTI0_IRQn;  //Channel of interruption, probably it will change if you use other pin or mode
+	NVIC_EXTI0.NVIC_IRQChannelPreemptionPriority = 0x0F;
+	NVIC_EXTI0.NVIC_IRQChannelSubPriority = 0x0F;
+ NVIC_EXTI0.NVIC_IRQChannelCmd = ENABLE;
+ 
+ //Initialize Nested Vector Interruption Controller's structure
+	NVIC_Init(&NVIC_EXTI0);
+ 
+}
+
+//EXTI0 Routine, the name of all the interruption routine are in \CMSIS\device\stm32f30x.h or in similar ".h" files
+void EXTI0_IRQHandler(void)
+{
+ \\Verify if the interruption happened
+	if(EXTI_GetITStatus(EXTI_Line0) == SET)
+		{
+			if(x==0){
+				x=1;
+			}
+			else{
+				x=0;
+			}
+			\\Clear the EXTI line 0 pending bit, don't forget to do this in any interruption
+			EXTI_ClearITPendingBit(EXTI_Line0);
+		}
+}
