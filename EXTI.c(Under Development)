@@ -80,13 +80,13 @@ void BUTTON_setup(void){
 
 //Function to configure External Interruption on PB0
 void EXTI0_setup(void){
- //Create structure for External Interruption
- EXTI_InitTypeDef EXTI_PB0;
- //Create structure to configure Nested Vector Interruption Controller of EXTI0 
- NVIC_InitTypeDef NVIC_EXTI0;
+ 	//Create structure for External Interruption
+ 	EXTI_InitTypeDef EXTI_PB0;
+	 //Create structure to configure Nested Vector Interruption Controller of EXTI0 
+ 	NVIC_InitTypeDef NVIC_EXTI0;
  
- //Enable Clock of APB2 to use EXTI and associate PB0 to EXTI0
- RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
+	 //Enable Clock of APB2 to use EXTI and associate PB0 to EXTI0
+ 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SYSCFG, ENABLE);
 	//Connect EXTI Line0 to PB0 pin
 	SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOB, EXTI_PinSource0);
 	//Parameters of External Interruption
@@ -95,16 +95,16 @@ void EXTI0_setup(void){
 	EXTI_PB0.EXTI_Trigger = EXTI_Trigger_Rising;  //Interruption will happen only in rising
 	EXTI_PB0.EXTI_LineCmd = ENABLE;
  
- //Initialize External Interruption's structure
+ 	//Initialize External Interruption's structure
 	EXTI_Init(&EXTI_PB0);
 
 	//Enable EXTI0 and configure interruption's priority
 	NVIC_EXTI0.NVIC_IRQChannel = EXTI0_IRQn;  //Channel of interruption, probably it will change if you use other pin or mode
 	NVIC_EXTI0.NVIC_IRQChannelPreemptionPriority = 0x0F;
 	NVIC_EXTI0.NVIC_IRQChannelSubPriority = 0x0F;
- NVIC_EXTI0.NVIC_IRQChannelCmd = ENABLE;
+ 	NVIC_EXTI0.NVIC_IRQChannelCmd = ENABLE;
  
- //Initialize Nested Vector Interruption Controller's structure
+	//Initialize Nested Vector Interruption Controller's structure
 	NVIC_Init(&NVIC_EXTI0);
  
 }
