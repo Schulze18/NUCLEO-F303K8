@@ -25,10 +25,10 @@ void BUTTON_setup(void);
 
 int main(void)
 {
-	//Enable Clock from LED's and Button's Port
+	//Enable Clock from LEDs and Buttons Port
 	RCC_AHBPeriphClockCmd( RCC_AHBPeriph_GPIOB, ENABLE);
 
-	//Call function to configure LED's Pin
+	//Call function to configure LEDs Pin
 	LED_setup();
 	BUTTON_setup();
 
@@ -41,7 +41,7 @@ int main(void)
 	}
 }
 
-//Function to configure LED's Pin
+//Function to configure LEDs Pin
 void LED_setup(void){
 	//Create GPIO Init Structure for  LED
 	GPIO_InitTypeDef led;
@@ -52,12 +52,12 @@ void LED_setup(void){
 	led.GPIO_PuPd = GPIO_PuPd_NOPULL;
 	led.GPIO_Speed = GPIO_Speed_50MHz;
 
-	//Initialize LED's structure
+	//Initialize LEDs structure
 	GPIO_Init(PORT_LED, &led);
 
 }
 
-//Function to configure Button's Pin
+//Function to configure Buttons Pin
 void BUTTON_setup(void){
 	//Create GPIO Init Structure for Button
 	GPIO_InitTypeDef button;
@@ -68,7 +68,7 @@ void BUTTON_setup(void){
 	button.GPIO_PuPd = GPIO_PuPd_NOPULL;
 	button.GPIO_Speed = GPIO_Speed_50MHz;
 
-	//Initialize Button's structure
+	//Initialize Buttons structure
 	GPIO_Init(PORT_BUTTON, &button);
 
 }
