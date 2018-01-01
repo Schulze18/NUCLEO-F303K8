@@ -4,11 +4,145 @@
   * @author  Lucas Schulze
   * @GitHub  /Schulze18/NUCLEO-F303K8
   * @version V1.0
-  * @date    12-October-2017
-  * @brief   Configure and use UART communication in STM32 Nucleo F303K8 with System Workbench for STM32
+  * @date    1-January-2017
+  * @brief   Configure and send 0 to 10 by UART communication in STM32 Nucleo F303K8 with System Workbench for STM32.
+             Values are send by 1 Hz and a LED in PB3 blink in the same frequency. In this program we're using just the UART
+             comunication, but the same works to USART1.
   ******************************************************************************
 */
 
-
-
 #include "stm32f30x.h"
+
+//Port and Pin of LED
+#define PIN_LED		GPIO_Pin_3
+#define PORT_LED	GPIOB
+
+//Set period of the Timer used
+#define TIMER_PERIOD 			100//(7200000/140000)
+
+//Function prototype
+void TIM1_setup(void);
+void USART_setup();
+void LED_setup();
+
+//Creation and set of the variables used
+uint8_t cont=0,flag=0;
+//Creation of the variable that will cont how many 100us past
+uint64_t micros_100=0;
+//Variable that save the when happened the last atualization 
+uint64_t last_att=0;
+
+
+int main(void)
+{
+ //Enable Clock from LEDs Port
+	RCC_AHBPeriphClockCmd( RCC_AHBPeriph_GPIOB, ENABLE);
+ //Enable Clock from UART1 and UART1s pins PORT
+ RCC_AHBPeriphClockCmd(RCC_AHBPeriph_GPIOA, ENABLE);
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1,ENABLE);
+ 
+ //Call function to configure LEDs Pin, Timer and USART
+	LED_setup();
+	TIM1_setup();
+	USART_setup();
+
+ //Main Loop
+	while(1){
+  //Verificy if past 1 second
+		if(micros_100-last_att>10000){
+			if(flag==1)y=0;
+			else flag=1;
+			cont++;
+			if(cont==11)cont=0;
+			ant=micros_100;
+			USART_SendData(USART1,cont);
+		}
+		if(flag==1)GPIO_SetBits(PORT_LED, PIN_LED);
+		if(flag==0)GPIO_ResetBits(PORT_LED, PIN_LED);
+	}
+}
+
+void USART_setup(void){
+	GPIO_InitTypeDef GPIO_InitStructure;
+	USART_InitTypeDef USART_InitStructure;
+
+	//GPIO Configuration
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9 | GPIO_Pin_10;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
+	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_Init(GPIOA, &GPIO_InitStructure);
+
+	GPIO_PinAFConfig(GPIOA, GPIO_PinSource9, GPIO_AF_7);
+	GPIO_PinAFConfig(GPIOA, GPIO_PinSource10, GPIO_AF_7);
+
+	//USART1 Configuration
+	USART_InitStructure.USART_BaudRate = 9600;
+	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
+	USART_InitStructure.USART_StopBits = USART_StopBits_1;
+	USART_InitStructure.USART_Parity = USART_Parity_No;
+	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
+	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
+
+	USART_Init(USART1, &USART_InitStructure);
+	USART_Cmd(USART1, ENABLE);
+
+}
+
+void LED_setup(void){
+	//Create GPIO Init Structure for  LED
+	GPIO_InitTypeDef led;
+
+	led.GPIO_Pin = PIN_LED;
+	led.GPIO_Mode = GPIO_Mode_OUT;
+	led.GPIO_OType = GPIO_OType_PP;
+	led.GPIO_PuPd = GPIO_PuPd_NOPULL;
+	led.GPIO_Speed = GPIO_Speed_50MHz;
+
+	//Initialize LED's structure
+	GPIO_Init(PORT_LED, &led);
+
+}
+
+
+void TIM1_setup(void){
+	TIM_TimeBaseInitTypeDef  TIM_TimeBaseStructure;
+	NVIC_InitTypeDef NVIC_InitStructure;
+
+	//Habilita a interrupção no TIM3 e configura sua prioridade
+	NVIC_InitStructure.NVIC_IRQChannel = TIM1_UP_TIM16_IRQn ;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
+
+	/* TIM3 clock enable */
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
+
+	//Testar apenas com interrupção no TIMER 1 - Clock de 8Mhz
+	/* Time base configuration */
+	//Valores para atualização dos sensores cada 1Khz
+	TIM_TimeBaseStructure.TIM_Period = 189;
+	TIM_TimeBaseStructure.TIM_Prescaler = 4;
+	TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
+	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;
+	TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure);
+
+	//Inicializar o timer e a interrupção apenas depois de configurar tudo
+	TIM_ITConfig(TIM1, TIM_IT_Update, ENABLE);
+	TIM_Cmd(TIM1,ENABLE);
+
+	}
+
+void TIM1_UP_TIM10_IRQHandler(void){
+	//Para utilizar o mesmo timer para mais de uma aplicação, basta ter mais variaveis como "contador"
+	if(TIM_GetITStatus(TIM1,TIM_IT_Update)!= RESET)
+	{
+
+		//GPIO_SetBits(PORT_LED, PIN_LED);
+		TIM_ClearITPendingBit(TIM1,TIM_IT_Update);
+		micros_100++;
+
+	}
+}
