@@ -15,36 +15,36 @@
 #include "stm32f30x.h"
 
 //Constantes
-#define PWM_PERIODO 			(7200000/17570)			//Frequencia irá ser 17,570 kHz pois o clock padrão é 72Mhz
-#define TIMER_PWM				TIM2
+#define PWM_PERIODO		(7200000/17570)			//Frequencia irá ser 17,570 kHz pois o clock padrão é 72Mhz
+#define TIMER_PWM		TIM2
 #define BARRAMENTO_TIMER_PWM	RCC_APB1Periph_TIM2
 
 //Pinos
-#define PINO_PWMA       GPIO_Pin_2
+#define PINO_PWMA       	GPIO_Pin_2
 #define PINO_SOURCE_PWMA	GPIO_PinSource2			//Necessário para a função GPIO_PinAFConfig ()
 #define PINO_PWMA_AF		GPIO_AF_1
-#define CANAL_PWMA 			3
+#define CANAL_PWMA 		3
 #define INPUT_PWMA_1		GPIO_Pin_7
 #define INPUT_PWMA_2		GPIO_Pin_6
 
-#define PINO_PWMB			GPIO_Pin_3
+#define PINO_PWMB		GPIO_Pin_3
 #define PINO_SOURCE_PWMB	GPIO_PinSource3
 #define PINO_PWMB_AF		GPIO_AF_1
-#define CANAL_PWMB			4
+#define CANAL_PWMB		4
 #define INPUT_PWMB_1		GPIO_Pin_5
 #define INPUT_PWMB_2		GPIO_Pin_4
 
 //Ports
-#define PORT_PWMA				  GPIOA
+#define PORT_PWMA		GPIOA
 #define PORT_INPUT_PWA_1 	GPIOA
 #define PORT_INPUT_PWA_2	GPIOA
-#define PORT_PWMB			    GPIOA
+#define PORT_PWMB		GPIOA
 #define PORT_INPUT_PWB_1	GPIOA
 #define PORT_INPUT_PWB_2	GPIOA
 
 //Protótipos de Funções
 void PWM_setup(void);
-void PWM(char pwm, int tempo_alto);				//Função de mudança do PWM, o valor do tempo em alto deve ser 0-255
+void PWM(char pwm, int tempo_alto);		//Função de mudança do PWM, o valor do tempo em alto deve ser 0-255
 void button_setup(void);
 
 //Estruturas e Classes
@@ -120,27 +120,27 @@ void PWM_setup(void)
 	GPIO_Init(PORT_PWMB, &GPIO_InitStructure);
 
 	//Configuração Modo alternativo dos pinos
-	GPIO_PinAFConfig(PORT_PWMA, PINO_SOURCE_PWMA, PINO_PWMA_AF); //GPIO_AF_6: refere-se a utilização com o TIM1
-	GPIO_PinAFConfig(PORT_PWMB, PINO_SOURCE_PWMB, PINO_PWMB_AF); //GPIO_AF_1: refere-se a utilização com o TIM2, TIM3 ou TIM4
+	GPIO_PinAFConfig(PORT_PWMA, PINO_SOURCE_PWMA, PINO_PWMA_AF);		//GPIO_AF_6: refere-se a utilização com o TIM1
+	GPIO_PinAFConfig(PORT_PWMB, PINO_SOURCE_PWMB, PINO_PWMB_AF);		//GPIO_AF_1: refere-se a utilização com o TIM2, TIM3 ou TIM4
 
 	//Habilita o barramento de clock do TIMER
 	if(!(strcmp(TIMER_PWM,"TIM1")))RCC_APB2PeriphClockCmd(BARRAMENTO_TIMER_PWM,ENABLE);
 	else RCC_APB1PeriphClockCmd(BARRAMENTO_TIMER_PWM, ENABLE);
 
 	//Configuração Padrão do Timer
-	TIM_TimeBaseStructure.TIM_Prescaler = 1;							//O clock do timer será 72Mhz/TIM_Prescaler
-	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;			//Contagem crescente
-	TIM_TimeBaseStructure.TIM_Period = PWM_PERIODO;						//Periodo do PWM
+	TIM_TimeBaseStructure.TIM_Prescaler = 1;				//O clock do timer será 72Mhz/TIM_Prescaler
+	TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;		//Contagem crescente
+	TIM_TimeBaseStructure.TIM_Period = PWM_PERIODO;				//Periodo do PWM
 	TIM_TimeBaseStructure.TIM_ClockDivision = 0;
 	TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
 
 	TIM_TimeBaseInit(TIMER_PWM, &TIM_TimeBaseStructure);
 
 	//Configuração do Outpur Compare
-	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2;					//PWM1 e PWM2 possuem logica invertida, define se começa em alta ou em baixa
+	TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM2;			//PWM1 e PWM2 possuem logica invertida, define se começa em alta ou em baixa
 	TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
 	TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable;
-	TIM_OCInitStructure.TIM_Pulse = 0;									//Tempo do pulso em alta, inicialmente zero
+	TIM_OCInitStructure.TIM_Pulse = 0;					//Tempo do pulso em alta, inicialmente zero
 	TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;
 	TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_High;
 	TIM_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Set;
@@ -188,6 +188,7 @@ void PWM(char pwm, int tempo_alto){
 		}
 
 		if(tempo_alto>255)tempo_alto=255;
+		
 		long int pulso_pwmA = (uint32_t)(((uint32_t)tempo_alto*PWM_PERIODO)/255);
 
 		TIM_OCInitStructure.TIM_Pulse = pulso_pwmA;
