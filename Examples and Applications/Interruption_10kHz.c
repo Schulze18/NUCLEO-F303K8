@@ -12,7 +12,7 @@
 #include "stm32f30x.h"
 
 //Constantes
-#define TIMER_PERIODO 			1000
+#define TIMER_PERIODO		1000
 
 //Prototipo de Funções
 void LedSetup(void);
@@ -28,7 +28,7 @@ int main(void)
 	LedSetup();
 	TIM3_Setup();
 	while(1){
-				}
+	}
 }
 
 void LedSetup(void){
