@@ -14,47 +14,47 @@
 #include "stm32f30x.h"
 
 //Constantes
-#define	CANAL_STOP					    0x80
-#define CANAL_S1					      0x90
-#define CANAL_S2					      0xA0
-#define CANAL_S3					      0xB0
-#define CANAL_S4					      0xC0
-#define CANAL_S5					      0xD0
-#define CANAL_S6					      0xE0
-#define CANAL_CURVA					    0xF0
-#define SPI_BAUDRATE				    SPI_BaudRatePrescaler_32
-#define BARRAMENTO_SPI				  RCC_APB2Periph_SPI1
+#define	CANAL_STOP	0x80
+#define CANAL_S1	0x90
+#define CANAL_S2	0xA0
+#define CANAL_S3	0xB0
+#define CANAL_S4	0xC0
+#define CANAL_S5	0xD0
+#define CANAL_S6	0xE0
+#define CANAL_CURVA	0xF0
+#define SPI_BAUDRATE	SPI_BaudRatePrescaler_32
+#define BARRAMENTO_SPI	RCC_APB2Periph_SPI1
 
 //Pinos
-#define PINO_SPI_SELETOR			  GPIO_Pin_8
+#define PINO_SPI_SELETOR	GPIO_Pin_8
 
-#define PINO_SPI_SCK				    GPIO_Pin_3
-#define PINO_SOURCE_SPI_SCK			GPIO_PinSource3
-#define PINO_SPI_SCK_AF				  GPIO_AF_5
+#define PINO_SPI_SCK		GPIO_Pin_3
+#define PINO_SOURCE_SPI_SCK	GPIO_PinSource3
+#define PINO_SPI_SCK_AF		GPIO_AF_5
 
-#define PINO_SPI_MISO				    GPIO_Pin_4
-#define PINO_SOURCE_SPI_MISO		GPIO_PinSource4
-#define PINO_SPI_MISO_AF			  GPIO_AF_5
+#define PINO_SPI_MISO		GPIO_Pin_4
+#define PINO_SOURCE_SPI_MISO	GPIO_PinSource4
+#define PINO_SPI_MISO_AF	GPIO_AF_5
 
-#define PINO_SPI_MOSI				    GPIO_Pin_5
-#define PINO_SOURCE_SPI_MOSI		GPIO_PinSource5
-#define PINO_SPI_MOSI_AF			  GPIO_AF_5
+#define PINO_SPI_MOSI		GPIO_Pin_5
+#define PINO_SOURCE_SPI_MOSI	GPIO_PinSource5
+#define PINO_SPI_MOSI_AF	GPIO_AF_5
 
 //Ports
-#define PORT_SPI_SELETOR			  GPIOA
-#define PORT_SPI_SCK				    GPIOB
-#define PORT_SPI_MISO				    GPIOB
+#define PORT_SPI_SELETOR	GPIOA
+#define PORT_SPI_SCK		GPIOB
+#define PORT_SPI_MISO		GPIOB
 #define PORT_SPI_MOSI           GPIOB
 
 //Protótipos de Funções
 void SPI_config(void);
 int leitura_SPI(int);
-void led_config(void);                                //Função apenas para teste
-void SPI_interrupcao(void);						                //Função que executa toda a leitura dos sensores
+void led_config(void);				//Função apenas para teste
+void SPI_interrupcao(void);			//Função que executa toda a leitura dos sensores
 
 
 //Variaveis
-int	sensores_linha[6];
+int sensores_linha[6];
 int sensor_stop;
 int sensor_curva;
 
@@ -138,9 +138,9 @@ int leitura_SPI( int dado){
 	 uint8_t result;
 
 	 SPI_SendData8(SPI1, dado);
-	 while (!(SPI1->SR & (SPI_I2S_FLAG_TXE)));              //Verifica se o Bite já foi enviado
-	 while (SPI1->SR & (SPI_I2S_FLAG_BSY));						      //Verifica se o SPI esta livre
-	 result = SPI_ReceiveData8(SPI1);							          //Salva o Byte recebido
+	 while (!(SPI1->SR & (SPI_I2S_FLAG_TXE)));		//Verifica se o Bite já foi enviado
+	 while (SPI1->SR & (SPI_I2S_FLAG_BSY));			//Verifica se o SPI esta livre
+	 result = SPI_ReceiveData8(SPI1);			//Salva o Byte recebido
 
 	 return result;
 }
@@ -163,12 +163,12 @@ void SPI_interrupcao(void){
 	long int x1,x2,x3;
 
 	//Leitura Canal 0 - Sensor Stop
-	GPIO_ResetBits(PORT_SPI_SELETOR,PINO_SPI_SELETOR);	    //Habilita o MCP3008 (É necessário a cada nova troca de informações)
+	GPIO_ResetBits(PORT_SPI_SELETOR,PINO_SPI_SELETOR);		//Habilita o MCP3008 (É necessário a cada nova troca de informações)
 	x1 = leitura_SPI(k);
 	x2 = leitura_SPI(CANAL_STOP);
-	x3 = leitura_SPI(k);													          //É necessário enviar qualquer informação, apenas para receber os últimos 8 bits
-	sensor_stop = ((x2 & 0x03) << 8) | (x3 & 0x00FF);		    //Lógica para unir os 2 bits MSB com os 8 bits LSB
-	GPIO_SetBits(PORT_SPI_SELETOR,PINO_SPI_SELETOR);		    //Desabilita o MCP3008
+	x3 = leitura_SPI(k);					        //É necessário enviar qualquer informação, apenas para receber os últimos 8 bits
+	sensor_stop = ((x2 & 0x03) << 8) | (x3 & 0x00FF);		//Lógica para unir os 2 bits MSB com os 8 bits LSB
+	GPIO_SetBits(PORT_SPI_SELETOR,PINO_SPI_SELETOR);		//Desabilita o MCP3008
 
 	//Leitura Canal 1 - Sensor Linha 1
 	GPIO_ResetBits(PORT_SPI_SELETOR,PINO_SPI_SELETOR);
